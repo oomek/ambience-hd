@@ -197,7 +197,10 @@ function genre_formatted()
 	selectorGenre.width = 200
 
 	if ( genre.len() == 1 )
+	{
+		selectorGenre.msg = genre[0]
 		genreMaxWidth = selectorGenre.msg_width
+	}
 
 	if ( genre.len() > 1 )
 	{
