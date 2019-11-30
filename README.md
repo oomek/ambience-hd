@@ -10,3 +10,6 @@ Version 0.7 beta
 ## TODO:
 - dynamicaly adapting to all resolutions
 - systems selector
+
+## Installation:
+Download zip and unpack `Ambience HD` folder into the layouts folder of Attract Mode
