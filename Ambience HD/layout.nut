@@ -785,7 +785,7 @@ else
 
 
 // System logo. TODO: implement other systems
-local logoMame = topBar.add_image("images/logos/arcade.png", 65, 65)
+local logoMame = topBar.add_image("images/logos/Arcade.png", 65, 65)
 //logoMame.alpha = 255
 logoMame.set_rgb( LOGO_RGBA[0], LOGO_RGBA[1], LOGO_RGBA[2] )
 logoMame.width = 250
