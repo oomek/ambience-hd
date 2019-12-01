@@ -1,4 +1,4 @@
-//#version 130
+#version 130
 uniform sampler2D texture;
 uniform sampler2D background;
 uniform vec4 coords;

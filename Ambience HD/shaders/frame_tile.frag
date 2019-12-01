@@ -3,7 +3,7 @@
 // Ambience HD theme - Frame Shader
 // 2018, Oomek
 //
-
+#version 130
 uniform sampler2D texture;
 uniform sampler2D frame_image;
 uniform sampler2D video;

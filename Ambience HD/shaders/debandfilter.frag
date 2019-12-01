@@ -1,4 +1,4 @@
-// #version 130
+#version 130
 #define PI 3.14159265359
 uniform sampler2D texture;
 uniform sampler2D background;

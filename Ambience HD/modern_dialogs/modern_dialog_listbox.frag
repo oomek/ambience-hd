@@ -1,3 +1,4 @@
+#version 130
 uniform sampler2D texture;
 uniform vec2 screenSize;
 uniform vec2 crop;

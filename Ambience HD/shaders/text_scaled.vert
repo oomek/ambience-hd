@@ -1,3 +1,4 @@
+#version 130
 uniform float scale;
 uniform vec2 position;
 uniform float crop;

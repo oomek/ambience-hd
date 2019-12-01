@@ -1,3 +1,4 @@
+#version 130
 uniform float width; // width in pixels of the rendertarget
 
 void main()

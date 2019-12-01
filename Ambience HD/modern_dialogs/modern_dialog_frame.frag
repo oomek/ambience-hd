@@ -1,3 +1,4 @@
+#version 130
 uniform sampler2D texture;
 uniform vec2 screenSize;
 uniform vec2 imageSize;
@@ -16,11 +17,13 @@ void main()
 	// Frame Coords
 	vec2 uv = gl_TexCoord[0].xy + dummy;
 	vec2 uvf = vec2( 0.5, 0.5 );
-	vec2 snapRatio = gl_TexCoord[2];
-	vec2 frameRatio = gl_TexCoord[3];
+	vec2 snapRatio = gl_TexCoord[2].xy;
+	vec2 frameRatio = gl_TexCoord[3].xy;
 
-	vec3 color_light = 220.0 / 255.0; //HardLight
-	vec3 color_dark = 110.0 / 255.0; //HardLight
+	float light = 220.0 / 255.0;
+	float dark = 110.0 / 255.0;
+	vec3 color_light = vec3( light, light, light ); //HardLight
+	vec3 color_dark = vec3( dark, dark, dark ); //HardLight
 
 	// slice1.xy top/left slice2.xy bottom/right
 	vec2 slice1 = max( sign( frameRatio.xy - uv ), 0.0 );
