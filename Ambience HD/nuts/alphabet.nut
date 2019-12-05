@@ -27,6 +27,8 @@ function alphabet_update()
 		if ( alphabet_index != null )
 			alphabet_activeLetterShaderX.to = alphabet_activeLetterTableX[ alphabet_index ]
 	}
+	if ( fe.list.size == 0 )
+		alphabet_activeLetterShaderX.to = alphabet_activeLetterTableX[0]
 }
 
 function alphabet_init()

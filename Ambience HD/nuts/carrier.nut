@@ -39,6 +39,7 @@ class Carrier
 	indexOldSnap = 0
 	scale = 0
 	scaleOld = 0
+	emptyFilterLabel = null
 
 	constructor( _carrierPosX, _carrierPosY, _carrierWidth, _carrierHeight, _tilesCount, _tilePadding )
 	{
@@ -115,6 +116,15 @@ class Carrier
 			local obj = Animate( tilesTable[i], "y", FILTERS_POS_CHOKE, 0, FILTERS_POS_SPEED )
 			animFadeYTiles.push( obj )
 		}
+
+		emptyFilterLabel = ms.add_text("NO GAMES FOUND", carrierPosX, carrierPosY, carrierWidth, carrierHeight )
+		emptyFilterLabel.align = Align.MiddleCentre
+		emptyFilterLabel.nomargin = true
+		emptyFilterLabel.set_rgb( FILTERS_RGBA[0], FILTERS_RGBA[1], FILTERS_RGBA[2] )
+		emptyFilterLabel.alpha = FILTERS_RGBA[3]
+		// emptyFilterLabel.bg_alpha = FILTERS_RGBA[3]
+		emptyFilterLabel.charsize = 38 //TODO dynamic
+		emptyFilterLabel.font = "BarlowCondensed-Regular2-Display0.80.ttf"
 
 		fe.add_transition_callback( this, "on_transition_carrier" )
 		fe.add_ticks_callback( this, "tick_carrier" )
@@ -211,6 +221,23 @@ class Carrier
 
 		if ( ttype == Transition.ToNewList )
 		{
+			if ( fe.list.size == 0 )
+			{
+				emptyFilterLabel.visible = true
+				selector.visible = false
+				surfaceTitle.visible = false
+				for ( local i = 0; i < tilesTable.len(); i++ )
+					tilesTable[i].visible = false
+			}
+			else
+			{
+				emptyFilterLabel.visible = false
+				selector.visible = true
+				surfaceTitle.visible = true
+				for ( local i = 0; i < tilesTable.len(); i++ )
+					tilesTable[i].visible = true
+			}
+
 			selector.set_snap( tilesTable[ indexActive ].image )
 			if ( var == 0 && g_snaps[ g_activeSnap ].video_playing == true )
 			{
@@ -342,7 +369,7 @@ class Carrier
 					tilesTableTxt[i].visible = true
 					if ( fe.game_info( Info.Favourite, tilesTable[i].index_offset ) == "1" ) tilesTableFav[i].visible = true; else tilesTableFav[i].visible = false
 					tilesTableTxt[ indexActive ].visible = false //TEMP DEBUG set to TRUE to show title over selector
-					if ( i != indexActive ) tilesTable[i].visible = true
+					if ( i != indexActive && fe.list.size > 0 ) tilesTable[i].visible = true
 					local selectorAlpha = localFade * 255.0
 					tilesTable[i].alpha = tilesAlpha * localFade
 					tilesTableTxt[i].alpha = tilesTable[i].alpha * TILE_TITLE_RGBA[3] / 255
@@ -442,6 +469,9 @@ class Carrier
 
 		if ( animScale[ indexActive ].time == 0 && animScale[ indexActive ].delayed == true )
 			reload_video()
+
+		emptyFilterLabel.y = selector.y - carrierHeight / 2 - TILE_BORDER
+		emptyFilterLabel.alpha = FILTERS_RGBA[3] * localFade
 
 		g_snaps[0].visible = false
 		g_snaps[1].visible = false

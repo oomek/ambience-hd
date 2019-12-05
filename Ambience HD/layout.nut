@@ -1,4 +1,4 @@
-﻿///////////////////////////////////////////////////
+///////////////////////////////////////////////////
 //
 // Ambience HD v0.7 beta
 // Theme for Attract-Mode Front-End
@@ -349,7 +349,12 @@ function reload_video()
 	g_snaps[ g_activeSnap ].video_playing = false
 	blurFadeAnim.wait( g_activeSnap * 255.0 )
 	g_activeSnap = 1 - g_activeSnap
-	g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap" )
+
+	if ( fe.list.size == 0 )
+		g_snaps[ g_activeSnap ].file_name = "images/background.png"
+	else
+		g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap" )
+
 	shaders[0].set_param( "texsize", images[0].texture_width, images[0].texture_height )
 	shaders[1].set_param( "texsize", images[1].texture_width, images[1].texture_height )
 	carrier.indexOldSnap = carrier.indexActive
@@ -669,7 +674,7 @@ function tick_layout( ttime )
 	genre_fade( ttime )
 
 	local offset = carrier.animFadeYTiles[0].to - carrier.animFadeYTiles[0].from
-	if ( abs( offset ) < FILTERS_GAP / 2.0 && g_filterTriggered == false)
+	if ( abs( offset ) < FILTERS_GAP / 2.0 && g_filterTriggered == false )
 	{
 		offset = FILTERS_GAP * sign( offset )
 		for ( local i = 0; i < carrier.animFadeYTiles.len(); i++ )
@@ -688,8 +693,13 @@ function tick_layout( ttime )
 			if (offset < 0 ) fe.signal( "next_filter" )
 			else if (offset > 0 ) fe.signal( "prev_filter" )
 	}
+
+	if ( fe.list.size == 0 )
+		gameListPosition.alpha = 0
+	else
+		gameListPosition.alpha = carrier.selector.alpha * 2.0 / 3.0
+
 	gameListPosition.y = carrier.selector.y - 224
-	gameListPosition.alpha = carrier.selector.alpha * 2.0 / 3.0
 }
 fe.add_ticks_callback( "tick_layout" )
 
@@ -806,6 +816,10 @@ dateTxt.margin = 0
 
 function on_signal( sig )
 {
+	if ( fe.list.size == 0 )
+		if ( sig == "next_game" || sig == "prev_game" || sig == "select" )
+			return true
+
 	if ( g_sleepState == true )
 	{
 		//g_snaps[ g_activeSnap ].video_playing = false
