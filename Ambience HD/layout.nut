@@ -466,11 +466,14 @@ function tick_all( ttime )
 
 	carrier.tick_carrier( ttime )
 
-	foreach ( anim in filters_animA )
-		anim.tick_animate( ttime )
+	if ( fe.filters.len() > 0 )
+	{
+		foreach ( anim in filters_animA )
+			anim.tick_animate( ttime )
 
-	foreach ( anim in filters_animY )
-		anim.tick_animate( ttime )
+		foreach ( anim in filters_animY )
+			anim.tick_animate( ttime )
+	}
 
 	alphabet_activeLetterShaderX.tick_animate( ttime )
 	tick_layout( ttime )
@@ -525,7 +528,9 @@ function on_transition( ttype, var, ttime )
 
 	if ( ttype == Transition.ToNewList)
 	{
-		if ( !filters_initDone ) filters_init()
+		if ( fe.filters.len() > 0 )
+			if ( !filters_initDone ) filters_init()
+
 		g_indexChanged = true
 
 		adjust_rom_info()
@@ -830,27 +835,39 @@ function on_signal( sig )
 		return true
 	}
 
+
 	switch ( sig )
 	{
 		case "down":
-			g_autorepeatSuppression++
-			if ( g_filterTriggered == true && g_autorepeatSuppression < 2)
+			if ( fe.filters.len() > 0 )
 			{
-				g_filterTriggered = false
-				carrier.change_filter(1)
-				next_filter()
+				g_autorepeatSuppression++
+				if ( g_filterTriggered == true && g_autorepeatSuppression < 2)
+				{
+					g_filterTriggered = false
+					carrier.change_filter(1)
+					next_filter()
+				}
 			}
 			return true
 
 		case "up":
-			g_autorepeatSuppression++
-			if ( g_filterTriggered == true && g_autorepeatSuppression < 2)
+			if ( fe.filters.len() > 0 )
 			{
-				g_filterTriggered = false
-				carrier.change_filter(-1)
-				prev_filter()
+				g_autorepeatSuppression++
+				if ( g_filterTriggered == true && g_autorepeatSuppression < 2)
+				{
+					g_filterTriggered = false
+					carrier.change_filter(-1)
+					prev_filter()
+				}
 			}
 			return true
+
+		case "next_filter":
+		case "prev_filter":
+			if ( fe.filters.len() == 0 )
+				return true
 
 		default:
 			return false
