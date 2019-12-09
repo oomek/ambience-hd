@@ -47,6 +47,7 @@ g_activeSnap <- 0
 g_indexChanged <- false
 g_blackoutTimer <- 0
 
+
 ////////////////////
 // Constants
 ////////////////////
@@ -116,15 +117,17 @@ ICON_MARGIN_RIGHT <- 6
 // Debug - remove later
 ////////////////////
 
-// debug1 <- fe.add_text( "", 0, 0, 1000, 32 )
+// debug1 <- fe.add_text( "1", 0, 0, 1000, 32 )
 // debug1.align = Align.Left
+// debug1.zorder = 3
 
-// debug2 <- fe.add_text( "", 0, 32, 1000, 32 )
+// debug2 <- fe.add_text( "2", 0, 32, 1000, 32 )
 // debug2.align = Align.Left
+// debug2.zorder = 3
 
-// debug3 <- fe.add_text( "", 0, 64, 1000, 32 )
+// debug3 <- fe.add_text( "3", 0, 64, 1000, 32 )
 // debug3.align = Align.Left
-
+// debug3.zorder = 3
 
 ////////////////////
 // Sounds
@@ -284,8 +287,13 @@ function full_title( text )
 }
 
 
+////////////////////
+// Blackout
+////////////////////
+
 blackout <- fe.add_image( "images/black.png", 0, 0, flw, flh )
 blackout.alpha = 255
+blackout.zorder = 2
 
 
 ////////////////////
@@ -300,6 +308,8 @@ g_snaps[0].preserve_aspect_ratio = false
 g_snaps[1].preserve_aspect_ratio = false
 g_snaps[0].video_flags = Vid.NoAutoStart
 g_snaps[1].video_flags = Vid.NoAutoStart
+g_snaps[0].visible = false
+g_snaps[1].visible = false
 
 if ( my_config["snaps"] == "Snaps" )
 {
@@ -735,32 +745,6 @@ function tick_layout( ttime )
 fe.add_ticks_callback( "tick_layout" )
 
 
-
-function hide_game()
-{
-	local dialog_options = []
-	local dialog_title = ""
-	local hidden = fe.game_info(Info.Tags, g_snaps[0].index_offset).find("hidden") != null ? true : false
-	if (hidden)
-		dialog_title = "Unhide game?"
-	else
-		dialog_title = "Hide game?"
-	dialog_options.push("YES")
-	dialog_options.push("NO")
-	local result = fe.overlay.list_dialog( dialog_options, dialog_title, 0, 1 );
-	local tag_path = FeConfigDirectory+"romlists\\"+fe.game_info(Info.Emulator)+"\\"
-	if ( result == 0)
-	{
-		if ( hidden )
-			fe.plugin_command_bg( "tagdel.bat", fe.game_info(Info.Name, g_snaps[0].index_offset) + " " + tag_path )
-		else
-			fe.plugin_command_bg( "tagadd.bat", fe.game_info(Info.Name, g_snaps[0].index_offset) + " " + tag_path )
-		fe.set_display(fe.list.display_index)
-	}
-	//custom_key = custom_key_default
-}
-
-
 ////////////////////
 // Bottom Bar
 ////////////////////
@@ -796,6 +780,7 @@ if ( my_config["labels"] == "Yes" )
 		labels.push( l )
 	}
 }
+
 
 ////////////////////
 // Top Bar
@@ -934,18 +919,7 @@ for ( local i = 0; i < carrier.tilesTable.len(); i++ )
 	carrier.tilesTableFav[i].zorder = 1
 }
 
-// carrier.selector.zorder = 999
-// surfaceTitle.zorder = 10000
 
-// for ( local i = 0; i < carrier.tilesTable.len(); i++ )
-// {
-// 	carrier.tilesTableFav[i].zorder = 999
-// }
-
-// debug1.zorder = 9999
-// debug2.zorder = 9999
-// debug3.zorder = 9999
-blackout.zorder = 2
 
 
 ////////////////////
@@ -953,19 +927,3 @@ blackout.zorder = 2
 ////////////////////
 
 fe.do_nut( "modern_dialogs/initialize.nut" )
-
-// local t1 = ms.add_text( "[ListEntry] / [ListSize]", 1600, 250, 80, 32 )
-// t1.align = Align.MiddleLeft
-// t1.margin = 0
-// // t1.font = "BarlowCondensed-Regular3-Display0.80.ttf"
-// t1.font = "BarlowCondensed-SemiBoldC.ttf"
-// t1.set_rgb( 0, 0, 0 )
-// t1.bg_alpha = 50
-
-// local t2 = ms.add_text( "[ListEntry] / [ListSize]", 1700, 250, 80, 32 )
-// t2.align = Align.Left
-// t2.margin = 0
-// // t2.font = "BarlowCondensed-Regular2-Display0.80.ttf"
-// t2.font = "BarlowCondensed-SemiBoldC.ttf"
-// t2.set_rgb( 0, 0, 0 )
-// t2.bg_alpha = 50

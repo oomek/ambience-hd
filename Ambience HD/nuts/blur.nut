@@ -28,6 +28,8 @@ images.push( surfaces[0].add_clone( g_snaps[0] ))
 
 images[0].set_pos( 0, 0, sizex, sizey )
 images[1].set_pos( 0, 0, sizex, sizey )
+images[0].visible = true
+images[1].visible = true
 
 surfaces[0].set_pos( -sizex, -sizey )
 images[0].set_rgb( 255, 255, 255 )

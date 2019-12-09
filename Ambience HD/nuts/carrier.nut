@@ -108,9 +108,6 @@ class Carrier
 			animScale.push( obj )
 		}
 
-		g_snaps[0].alpha = 0;
-		g_snaps[1].alpha = 0;
-
 		for ( local i = 0; i < tilesTable.len(); i++ )
 		{
 			local obj = Animate( tilesTable[i], "y", FILTERS_POS_CHOKE, 0, FILTERS_POS_SPEED )
@@ -455,11 +452,7 @@ class Carrier
 
 		emptyFilterLabel.y = selector.y - carrierHeight / 2 - TILE_BORDER
 		emptyFilterLabel.alpha = FILTERS_RGBA[3] * localFade
-
-		g_snaps[0].visible = false
-		g_snaps[1].visible = false
 	}
-
 
 	function set_selector_color( r, g ,b )
 	{
