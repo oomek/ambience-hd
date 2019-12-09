@@ -1,6 +1,6 @@
 # Ambience HD theme for Attract-Mode
 
-### Version 0.7 beta
+### Version 0.8 beta
 
 &nbsp;
 ## Known Issues:
@@ -16,6 +16,16 @@
 
 &nbsp;
 ## Changelog:
+
+#### 09.12.2019
+- Updated to v0.8
+- Fixed some genres being cut off
+- Fixed logo not showing and wrong format of gradients
+- Fixed handling of filters with no games
+- Fixed handling of empty filters list
+- Fixed shader errors on linux
+- Improved formatting of long game titles
+
 #### 29.11.2019
 - Initial release
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////
 //
-// Ambience HD v0.7 beta
+// Ambience HD v0.8 beta
 // Theme for Attract-Mode Front-End
 //
 // by Oomek 2019
