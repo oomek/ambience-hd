@@ -108,6 +108,8 @@ BLACKOUT_SPEED_FROM_GAME <- 6
 ICON_SIZE <- 32
 INFO_BORDER <- 13
 GAME_LIST_POSITION_WIDTH <- 150
+ICON_MARGIN_LEFT <- 20
+ICON_MARGIN_RIGHT <- 6
 
 
 ////////////////////
@@ -227,8 +229,6 @@ function adjust_rom_info_positions()
 	else
 	    maxInfoWidth = ZOOM_H_X - INFO_BORDER * 2
 
-	local ICON_MARGIN_LEFT = 20
-	local ICON_MARGIN_RIGHT = 6
 	local maxYearWidth = maxInfoWidth - selectorPlayers.width - selectorGenre.width - ICON_SIZE * 3 - ICON_MARGIN_LEFT * 2 - ICON_MARGIN_RIGHT * 3
 	if ( selectorYear.width > maxYearWidth )
 		selectorYear.width = maxYearWidth
@@ -272,12 +272,26 @@ function genre_fade( ttime )
 	}
 }
 
+function full_title( text )
+{
+	local new_line_pos = text.msg_wrapped.find("\n")
+  	local full_title = fe.game_info(Info.Title)
+  	local title_table = split(full_title, "(/[")
+  	if ( title_table.len() > 0 )
+  		return title_table[0].slice(0, new_line_pos) + "\n" +  lstrip(title_table[0].slice(new_line_pos + 0))
+  	else
+  		return ""
+}
+
 
 blackout <- fe.add_image( "images/black.png", 0, 0, flw, flh )
 blackout.alpha = 255
 
 
-// Snap that fades in the video
+////////////////////
+// Snaps for Blur
+////////////////////
+
 g_snaps.push( fe.add_image( "images/background.png", 839, 448, 242, 242 ))
 g_snaps.push( fe.add_image( "images/background.png", 839, 448, 242, 242 ))
 g_snaps[0].mipmap = true
@@ -402,6 +416,16 @@ selectorTitle.margin = 18 //20
 selectorTitle.charsize = 44 + 2
 selectorTitle.alpha = TILE_TITLE_RGBA[3]
 
+selectorTitleEx <- surfaceTitle.add_text( "[Title]", 0, 0, surfaceTitleWidth, 140 )
+selectorTitleEx.line_spacing = 0.85
+selectorTitleEx.align = Align.TopLeft
+selectorTitleEx.word_wrap = true
+selectorTitleEx.set_rgb( 0, 0, 0 )
+selectorTitleEx.font = "BarlowCondensed-SemiBold2-Display0.80.ttf"
+selectorTitleEx.margin = 18 //20
+selectorTitleEx.charsize = 44 + 2
+selectorTitleEx.alpha = 0
+
 
 ////////////////////
 // Game Info
@@ -510,11 +534,12 @@ function on_transition( ttype, var, ttime )
 	if ( ttype == Transition.ToNewSelection )
 	{
 		g_indexChanged = true
-		selectorTitle.msg =  carrier.tilesTableTxt[ carrier.indexActive ].msg_wrapped
 	}
 
 	if ( ttype == Transition.FromOldSelection )
 	{
+		selectorTitle.msg = carrier.tilesTableTxt[ carrier.indexActive ].msg_wrapped
+		selectorTitleEx.msg = full_title( carrier.tilesTableTxt[ carrier.indexActive ])
 	}
 
 	if ( ttype == Transition.EndNavigation )
@@ -537,7 +562,8 @@ function on_transition( ttype, var, ttime )
 		selectorGenre.msg = genre_formatted()
 		adjust_rom_info_positions()
 
-		selectorTitle.msg =  carrier.tilesTableTxt[ carrier.indexActive ].msg_wrapped
+		selectorTitle.msg = carrier.tilesTableTxt[ carrier.indexActive ].msg_wrapped
+		selectorTitleEx.msg = full_title( carrier.tilesTableTxt[ carrier.indexActive ])
 
 		if ( var < 0 )
 		{
@@ -838,6 +864,16 @@ function on_signal( sig )
 
 	switch ( sig )
 	{
+		// This will allow for horizontal navigation in the next AttractMode release
+		// without remapping actions in settings
+		// case "left":
+		// 	fe.signal( "prev_game" )
+		// 	return true
+
+		// case "right":
+		// 	fe.signal( "next_game" )
+		// 	return true
+
 		case "down":
 			if ( fe.filters.len() > 0 )
 			{

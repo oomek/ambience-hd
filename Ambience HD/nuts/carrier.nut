@@ -208,13 +208,7 @@ class Carrier
 			selector.set_snap( tilesTable[ indexActive ].image )
 			tilesTable[ indexOldSnap ].set_video( g_snaps[ g_activeSnap ] )
 			indexOld = indexActive
-			for ( local i = 0; i < tilesTable.len(); i++ )
-			{
-				if ( tilesTable[i].subimg_width >= tilesTable[i].subimg_height )
-					tilesTable[i].set_snap_size( ZOOM_H_X, ZOOM_H_Y )
-				else
-					tilesTable[i].set_snap_size( ZOOM_V_X, ZOOM_V_Y )
-			}
+
 			for ( local i = 0; i < tilesTotal; i++ )
 				tilesTableTxt[i].index_offset = tilesTable[i].index_offset // needed when rawset_index_offset is set in ToNewSelection
 		}
@@ -386,25 +380,18 @@ class Carrier
 		scaleOld = animScale[ indexOldSnap ].scale
 		selector.set_video_alpha( scale )
 		tilesTable[ indexOldSnap ].set_border( TILE_BORDER, TILE_BORDER, TILE_BORDER, mix ( TILE_BORDER + TILE_TXT_HEIGHT, TILE_BORDER + SELECTOR_TITLE_HEIGHT, scaleOld ))
-		if ( tilesTable[ indexActive ].texture_width >= tilesTable[ indexActive ].texture_height )
+
+		// if ( tilesTable[ indexActive ].texture_width >= tilesTable[ indexActive ].texture_height )
+		local rotation = fe.game_info( Info.Rotation,tilesTable[ indexActive ].index_offset, tilesTable[ indexActive ].filter_offset )
+		if(  rotation == "90" || rotation == "270" )
 		{
 			selector.y = tilesTable[ indexActive ].y + TILE_BORDER
 			selector.width = tilesTable[ indexActive ].width + SELECTOR_BORDER * 2.0
 			selector.height = tilesTable[ indexActive ].height + SELECTOR_BORDER
 			selector.origin_x = tilesTable[ indexActive ].origin_x
 			selector.origin_y = tilesTable[ indexActive ].origin_y + TILE_BORDER + SELECTOR_BORDER
-
-			surfaceTitle.x = tilesTable[ indexActive ].x - tilesTable[ indexActive ].origin_x + TILE_BORDER
-			surfaceTitle.y = tilesTable[ indexActive ].y + tilesTable[ indexActive ].height - tilesTable[ indexActive ].origin_y - mix ( TILE_BORDER + TILE_TXT_HEIGHT, TILE_BORDER + SELECTOR_BORDER + SELECTOR_TITLE_HEIGHT, scale )
-			surfaceTitle.width = mix( surfaceTitleWidth * 2.0, surfaceTitleWidth, scale )
-			surfaceTitle.height = mix(( surfaceTitleHeight - 42.0 ) / 2.0, surfaceTitleHeight, scale ) //TODO what is the meaning of 42 ? :)
-
 			selector.set_border( TILE_BORDER + SELECTOR_BORDER, TILE_BORDER + SELECTOR_BORDER, TILE_BORDER + SELECTOR_BORDER, mix( TILE_BORDER + TILE_TXT_HEIGHT, TILE_BORDER + SELECTOR_TITLE_HEIGHT, scale ))
-			selector.set_snap_size( ZOOM_H_X, ZOOM_H_Y )
-			surfaceTitleShader.set_param( "textureSize", surfaceTitle.texture_width, surfaceTitle.texture_height )
-			surfaceTitleShader.set_param( "imageSize", surfaceTitle.width, surfaceTitle.height )
-			surfaceTitleShader.set_param( "scale", scale * 0.8421 + 1.1579 )
-
+			selector.set_snap_size( ZOOM_V_X, ZOOM_V_Y )
 		}
 		else
 		{
@@ -413,24 +400,17 @@ class Carrier
 			selector.height = tilesTable[ indexActive ].height + SELECTOR_BORDER
 			selector.origin_x = tilesTable[ indexActive ].origin_x
 			selector.origin_y = tilesTable[ indexActive ].origin_y + TILE_BORDER + SELECTOR_BORDER
-
-			surfaceTitle.x = tilesTable[ indexActive ].x - tilesTable[ indexActive ].origin_x + TILE_BORDER
-
-			surfaceTitle.width = mix( surfaceTitleWidth / 2.0, surfaceTitleWidth, scale )
-			surfaceTitle.height = mix(( surfaceTitleHeight - 42.0 ) / 2.0, surfaceTitleHeight, scale ) //TODO what is the meaning of 42 ? :)
 			selector.set_border( TILE_BORDER + SELECTOR_BORDER, TILE_BORDER + SELECTOR_BORDER, TILE_BORDER + SELECTOR_BORDER, mix( TILE_BORDER + TILE_TXT_HEIGHT, TILE_BORDER + SELECTOR_TITLE_HEIGHT, scale ))
-			selector.set_snap_size( ZOOM_V_X, ZOOM_V_Y )
-			surfaceTitleShader.set_param( "textureSize", surfaceTitle.texture_width, surfaceTitle.texture_height )
-			surfaceTitleShader.set_param( "imageSize", surfaceTitle.width, surfaceTitle.height )
-			surfaceTitleShader.set_param( "scale", scale * 0.8421 + 1.1579 )
+			selector.set_snap_size( ZOOM_H_X, ZOOM_H_Y )
 		}
 
 		for ( local i = 0; i < tilesTable.len(); i++ )
 		{
-			if ( tilesTable[i].subimg_width >= tilesTable[i].subimg_height )
-				tilesTable[i].set_snap_size( ZOOM_H_X, ZOOM_H_Y )
-			else
+			local rotation = fe.game_info( Info.Rotation,tilesTable[i].index_offset, tilesTable[i].filter_offset )
+			if(  rotation == "90" || rotation == "270" )
 				tilesTable[i].set_snap_size( ZOOM_V_X, ZOOM_V_Y )
+			else
+				tilesTable[i].set_snap_size( ZOOM_H_X, ZOOM_H_Y )
 		}
 
 		// Adjusting favourite icons positions
@@ -466,6 +446,9 @@ class Carrier
 		surfaceTitleShader.set_param( "textureSize", surfaceTitle.texture_width, surfaceTitle.texture_height )
 		surfaceTitleShader.set_param( "imageSize", surfaceTitle.width, surfaceTitle.height )
 		surfaceTitleShader.set_param( "scale", scale * 0.8421 + 1.1579 )
+
+		selectorTitle.alpha = TILE_TITLE_RGBA[3] * ( 1.0 - scale )
+		selectorTitleEx.alpha = TILE_TITLE_RGBA[3] * scale
 
 		if ( animScale[ indexActive ].time == 0 && animScale[ indexActive ].delayed == true )
 			reload_video()
