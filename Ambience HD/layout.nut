@@ -377,7 +377,12 @@ function reload_video()
 	if ( fe.list.size == 0 )
 		g_snaps[ g_activeSnap ].file_name = "images/background.png"
 	else
-		g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap" )
+	{
+		if ( my_config["snaps"] == "Snaps" )
+			g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap", 0, 0, Art.ImagesOnly )
+		else
+			g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap" )
+	}
 
 	shaders[0].set_param( "texsize", images[0].texture_width, images[0].texture_height )
 	shaders[1].set_param( "texsize", images[1].texture_width, images[1].texture_height )
