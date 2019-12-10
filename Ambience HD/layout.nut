@@ -41,9 +41,6 @@ g_filterTriggered <- false
 g_autorepeatSuppression <- 0
 g_inGame <- false
 
-g_snaps <- []
-g_activeSnap <- 0
-
 g_indexChanged <- false
 g_blackoutTimer <- 0
 
@@ -151,140 +148,7 @@ fe.do_nut( "nuts/frame_tile.nut" )
 fe.do_nut( "nuts/animate.nut" )
 fe.do_nut( "nuts/carrier.nut" )
 fe.do_nut( "nuts/text_scaled.nut" )
-
-
-////////////////////
-// Functions
-////////////////////
-
-function adjust_rom_info()
-{
-	selectorYear.width = ZOOM_V_X
-
-	local m = fe.game_info( Info.Manufacturer )
-	local y = fe.game_info( Info.Year )
-
-	local result = ""
-	if (( m.len() > 0 ) && ( y.len() > 0 ))
-		result = y + " " + m
-
-	selectorYear.msg = result
-	selectorYear.width = selectorYear.msg_width
-
-
-	selectorPlayers.width = 100
-
-	selectorPlayers.msg = fe.game_info( Info.Players )
-	selectorPlayers.width = selectorPlayers.msg_width
-}
-
-local genre = []
-local genreTimer = -200
-local genreDelay = -100
-local genreCurrent = genreDelay
-
-
-function genre_formatted()
-{
-	genre.clear()
-	genreTimer = genreDelay * 2.0
-	genreCurrent = 0
-	genre = split( fe.game_info( Info.Category ), "/" )
-
-	local result = ""
-	if ( genre.len() > 0 )
-	{
-		for ( local i = 0; i < genre.len(); i++ ) genre[i] = lstrip( genre[i] )
-		result = genre[0]
-	}
-
-	local genreMaxWidth = 0
-	selectorGenre.width = 200
-
-	if ( genre.len() == 1 )
-	{
-		selectorGenre.msg = genre[0]
-		genreMaxWidth = selectorGenre.msg_width
-	}
-
-	if ( genre.len() > 1 )
-	{
-		for ( local i = 0; i < genre.len(); i++ )
-		{
-			selectorGenre.msg = genre[i]
-			if ( genreMaxWidth < selectorGenre.msg_width )
-				genreMaxWidth = selectorGenre.msg_width
-		}
-	}
-
-	selectorGenre.width = genreMaxWidth
-
-	return result
-}
-
-
-function adjust_rom_info_positions()
-{
-	local maxInfoWidth = 0
-
-	if( fe.game_info( Info.Rotation ) == "90" || fe.game_info( Info.Rotation ) == "270" ) // TODO adapt in selector
-		maxInfoWidth = ZOOM_V_X - INFO_BORDER * 2
-	else
-	    maxInfoWidth = ZOOM_H_X - INFO_BORDER * 2
-
-	local maxYearWidth = maxInfoWidth - selectorPlayers.width - selectorGenre.width - ICON_SIZE * 3 - ICON_MARGIN_LEFT * 2 - ICON_MARGIN_RIGHT * 3
-	if ( selectorYear.width > maxYearWidth )
-		selectorYear.width = maxYearWidth
-
-	selectorYear.x = selectorIconYear.x + ICON_SIZE + ICON_MARGIN_RIGHT
-	selectorIconPlayers.x = selectorYear.x + selectorYear.width + ICON_MARGIN_LEFT
-	selectorPlayers.x = selectorIconPlayers.x + ICON_SIZE + ICON_MARGIN_RIGHT
-	selectorIconGenre.x = selectorPlayers.x + selectorPlayers.width + ICON_MARGIN_LEFT
-	selectorGenre.x = selectorIconGenre.x + ICON_SIZE + ICON_MARGIN_RIGHT
-}
-
-
-function update_clock( ttime )
-{
-	local datetime = date();
-	timeTxt.msg = format( "%02d",datetime.hour ) + ":" + format( "%02d",datetime.min )
-	dateTxt.msg = format( "%02d",datetime.day ) + " / " + format( "%02d",datetime.month + 1 ) + " / " + format( "%04d",datetime.year )
-}
-fe.add_ticks_callback( "update_clock" );
-
-
-
-function genre_fade( ttime )
-{
-	genreTimer++
-	if ( genre.len() > 1 )
-	{
-		if ( genreTimer > -genreDelay )
-		{
-			genreTimer = genreDelay
-		}
-		if ( genreTimer == 0 )
-		{
-			genreCurrent++
-			if ( genreCurrent > genre.len() - 1 ) genreCurrent = 0
-			selectorGenre.msg = genre[ genreCurrent ]
-		}
-		local t = abs(( genreTimer ) * 8 )
-		t = t < 0 ? 0 : t > -genreDelay ? -genreDelay : t
-		selectorGenre.alpha =  t / -genreDelay.tofloat() * 100.0
-	}
-}
-
-function full_title( text )
-{
-	local new_line_pos = text.msg_wrapped.find("\n")
-  	local full_title = fe.game_info(Info.Title)
-  	local title_table = split(full_title, "(/[")
-  	if ( title_table.len() > 0 )
-  		return title_table[0].slice(0, new_line_pos) + "\n" +  lstrip(title_table[0].slice(new_line_pos + 0))
-  	else
-  		return ""
-}
+fe.do_nut( "nuts/functions.nut" )
 
 
 ////////////////////
@@ -294,38 +158,6 @@ function full_title( text )
 blackout <- fe.add_image( "images/black.png", 0, 0, flw, flh )
 blackout.alpha = 255
 blackout.zorder = 2
-
-
-////////////////////
-// Snaps for Blur
-////////////////////
-
-g_snaps.push( fe.add_image( "images/background.png", 839, 448, 242, 242 ))
-g_snaps.push( fe.add_image( "images/background.png", 839, 448, 242, 242 ))
-g_snaps[0].mipmap = true
-g_snaps[1].mipmap = true
-g_snaps[0].preserve_aspect_ratio = false
-g_snaps[1].preserve_aspect_ratio = false
-g_snaps[0].video_flags = Vid.NoAutoStart
-g_snaps[1].video_flags = Vid.NoAutoStart
-g_snaps[0].visible = false
-g_snaps[1].visible = false
-
-if ( my_config["snaps"] == "Snaps" )
-{
-	g_snaps[0].video_flags = Vid.ImagesOnly
-	g_snaps[1].video_flags = Vid.ImagesOnly
-}
-else if ( my_config["snaps"] == "Videos Muted" )
-{
-	g_snaps[0].video_flags = Vid.NoAudio | Vid.NoAutoStart
-	g_snaps[1].video_flags = Vid.NoAudio | Vid.NoAutoStart
-}
-else if ( my_config["snaps"] == "Videos" )
-{
-	g_snaps[0].video_flags = Vid.NoAutoStart
-	g_snaps[1].video_flags = Vid.NoAutoStart
-}
 
 
 ////////////////////
@@ -362,33 +194,6 @@ surfaceTitle.zorder = 2
 surfaceAlphabet.visible = false
 surfaceAlphabet = ms.add_clone( surfaceAlphabet )
 surfaceAlphabet.visible = true
-
-
-blurFadeAnim <- Animate( images[1], "alpha", 10, 20, 1.05 )
-
-local video_reloaded = true
-function reload_video()
-{
-	g_snaps[ 1 - g_activeSnap ].video_playing = false
-	g_snaps[ g_activeSnap ].video_playing = false
-	blurFadeAnim.wait( g_activeSnap * 255.0 )
-	g_activeSnap = 1 - g_activeSnap
-
-	if ( fe.list.size == 0 )
-		g_snaps[ g_activeSnap ].file_name = "images/background.png"
-	else
-	{
-		if ( my_config["snaps"] == "Snaps" )
-			g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap", 0, 0, Art.ImagesOnly )
-		else
-			g_snaps[ g_activeSnap ].file_name = fe.get_art( "snap" )
-	}
-
-	shaders[0].set_param( "texsize", images[0].texture_width, images[0].texture_height )
-	shaders[1].set_param( "texsize", images[1].texture_width, images[1].texture_height )
-	carrier.indexOldSnap = carrier.indexActive
-	carrier.selector.set_video( g_snaps[ g_activeSnap ])
-}
 
 
 ////////////////////
@@ -449,7 +254,6 @@ selectorTitleEx.alpha = 0
 selectorIconYear <- surfaceTitle.add_image( "images/icon-copy.png", 15 - 5 + 8, 80 + 44 - 8 + 6 )
 selectorIconYear.alpha = 100
 
-// local selectorYear = surfaceTitle.add_text( "[!year_formatted]", 12-3 + 38 + 8, 46 + 44 - 8 + 6, 180, 96 )
 selectorYear <- surfaceTitle.add_text( "", 12 - 3 + 38 + 8, selectorIconYear.y, 120, ICON_SIZE )
 selectorYear.align = Align.MiddleLeft
 selectorYear.set_rgb( 0, 0, 0 )
@@ -457,7 +261,6 @@ selectorYear.font = "BarlowCondensed-Regular2-Display0.80.ttf"
 selectorYear.margin = 0
 selectorYear.charsize = ceil( 10 * 2.148760330578512 ) + 4
 selectorYear.alpha = 100
-// selectorYear.bg_alpha = 100 //TEMP
 
 selectorIconPlayers <- surfaceTitle.add_image( "images/icon-stick.png", 0, selectorIconYear.y )
 selectorIconPlayers.alpha = 100
@@ -469,7 +272,6 @@ selectorPlayers.font = "BarlowCondensed-Regular2-Display0.80.ttf"
 selectorPlayers.margin = 0
 selectorPlayers.charsize = ceil( 10 * 2.148760330578512 ) + 4
 selectorPlayers.alpha = 100
-// selectorPlayers.bg_alpha = 100 //TEMP
 
 selectorIconGenre <- surfaceTitle.add_image( "images/icon-genre.png", 0, selectorIconYear.y )
 selectorIconGenre.alpha = 100
@@ -481,18 +283,13 @@ selectorGenre.font = "BarlowCondensed-Regular2-Display0.80.ttf"
 selectorGenre.margin = 0
 selectorGenre.charsize = ceil( 10 * 2.148760330578512 ) + 4
 selectorGenre.alpha = 100
-// selectorGenre.bg_alpha = 100 //TEMP
 
 
 ////////////////////
 // Carrier
 ////////////////////
 
-//local carrier = Carrier( flw + flx - crw, 0, crw, flh_old, TILES_COUNT, 3, 8, "images/selector300x216.png", "images/white.png" )
 carrier <- Carrier ( 65, floor( flh * 0.41 ), flw - 65 * 2, 242, TILES_COUNT, TILE_PADDING ) //TEMP frame2 + 200
-//carrier.set_keep_aspect()
-//carrier.set_selector_alpha( 255 ) //150
-//carrier.set_background_alpha( 0 )
 
 
 function tick_all( ttime )
@@ -516,7 +313,7 @@ function tick_all( ttime )
 
 	alphabet_activeLetterShaderX.tick_animate( ttime )
 	tick_layout( ttime )
-	blurFadeAnim.tick_animate( ttime )
+	blur_fadeAnim.tick_animate( ttime )
 	zoomTop.tick_animate( ttime )
 	zoomTopShadow.tick_animate( ttime )
 	zoomBottom.tick_animate( ttime )
@@ -559,8 +356,6 @@ function on_transition( ttype, var, ttime )
 
 	if ( ttype == Transition.EndNavigation )
 	{
-		video_reloaded = false
-
 		adjust_rom_info()
 		selectorGenre.msg = genre_formatted()
 		adjust_rom_info_positions()
@@ -672,8 +467,6 @@ function prev_filter()
 
 	soundDrip.playing = true
 }
-
-
 
 
 ///////////////////////////
@@ -843,8 +636,8 @@ function on_signal( sig )
 
 	if ( g_sleepState == true )
 	{
-		//g_snaps[ g_activeSnap ].video_playing = false
-		//g_snaps[ g_activeSnap ].video_playing = true
+		//blur_snaps[ blur_activeSnap ].video_playing = false
+		//blur_snaps[ blur_activeSnap ].video_playing = true
 		g_sleepState = false
 		carrier.animScale[ carrier.indexActive ].set(0)
 		carrier.animScale[ carrier.indexActive ].wait(1)
@@ -923,8 +716,6 @@ for ( local i = 0; i < carrier.tilesTable.len(); i++ )
 	carrier.tilesTableTxt[i].zorder = 1
 	carrier.tilesTableFav[i].zorder = 1
 }
-
-
 
 
 ////////////////////

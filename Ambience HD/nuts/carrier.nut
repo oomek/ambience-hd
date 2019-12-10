@@ -95,7 +95,7 @@ class Carrier
 		}
 
 		selector = fe.add_frame_image_selector( "images/frames/frame2.100.256.png", 0, 0, 0, 0, 0, 0, 0, 0, ms )
-		selector.set_blur( surfaces[ iterations - 1 ])
+		selector.set_blur( blur_surfaces[ blur_iterations - 1 ])
 		selector.set_theme( THEME_DARK )
 		selector.blend_mode = BlendMode.Premultiplied
 
@@ -192,7 +192,7 @@ class Carrier
 
 		if ( ttype == Transition.FromOldSelection )
 		{
-			g_snaps[ g_activeSnap ].video_playing = false
+			blur_snaps[ blur_activeSnap ].video_playing = false
 			animScale[ indexActive ].scale = 0
 
 			for ( local i = 0; i < animScale.len(); i++ )
@@ -203,7 +203,7 @@ class Carrier
 			tilesTable[ indexActive ].visible = false
 			tilesTable[ indexOld ].visible = true
 			selector.set_snap( tilesTable[ indexActive ].image )
-			tilesTable[ indexOldSnap ].set_video( g_snaps[ g_activeSnap ] )
+			tilesTable[ indexOldSnap ].set_video( blur_snaps[ blur_activeSnap ] )
 			indexOld = indexActive
 
 			for ( local i = 0; i < tilesTotal; i++ )
@@ -230,10 +230,12 @@ class Carrier
 			}
 
 			selector.set_snap( tilesTable[ indexActive ].image )
-			if ( var == 0 && g_snaps[ g_activeSnap ].video_playing == true )
+			if ( var == 0 && blur_snaps[ blur_activeSnap ].video_playing == true )
 			{
 				// reload only after add/remove favourite/tag. Do not reload on layout launch
-				reload_video() // reloads video on adding/removing from favourites TODO: try not to reload on adding
+				blur_reload_video() // reloads video on adding/removing from favourites TODO: try not to reload on adding
+				indexOldSnap = indexActive
+				selector.set_video( blur_snaps[ blur_activeSnap ])
 			}
 		}
 
@@ -246,18 +248,18 @@ class Carrier
 
 		if ( ttype == Transition.ToGame )
 		{
-			g_snaps[ g_activeSnap ].video_playing = false
-			g_snaps[ 1 - g_activeSnap ].video_playing = false
+			blur_snaps[ blur_activeSnap ].video_playing = false
+			blur_snaps[ 1 - blur_activeSnap ].video_playing = false
 		}
 
 		if ( ttype == Transition.FromGame )
 		{
-			g_snaps[ 1 - g_activeSnap ].video_playing = false
+			blur_snaps[ 1 - blur_activeSnap ].video_playing = false
 
 			if ( animScale[ indexActive ].from == 1.0 )
-				g_snaps[ g_activeSnap ].video_playing = true
+				blur_snaps[ blur_activeSnap ].video_playing = true
 			else
-				g_snaps[ g_activeSnap ].video_playing = false
+				blur_snaps[ blur_activeSnap ].video_playing = false
 		}
 		return false
 	}
@@ -265,7 +267,7 @@ class Carrier
 
 	function change_filter( var )
 	{
-		g_snaps[ g_activeSnap ].video_playing = false
+		blur_snaps[ blur_activeSnap ].video_playing = false
 		for ( local i = 0; i < animScale.len(); i++ )
 			if ( i != indexActive && i != indexOldSnap )
 				animScale[i].set( 0 )
@@ -284,7 +286,7 @@ class Carrier
 	{
 		if ( !g_inGame )
 			if (( animScale[ indexActive ].to == 1.0 ) && ( animScale[ indexActive ].from > 0.0 ) && ( g_filterTriggered == true ))
-				g_snaps[ g_activeSnap ].video_playing = true
+				blur_snaps[ blur_activeSnap ].video_playing = true
 
 		local localFade = 1.0 - 2.0 * fabs(( tilesY - fabs( tilesTable[0].y )) / ::FILTERS_GAP )
 
@@ -448,7 +450,11 @@ class Carrier
 		selectorTitleEx.alpha = TILE_TITLE_RGBA[3] * scale
 
 		if ( animScale[ indexActive ].time == 0 && animScale[ indexActive ].delayed == true )
-			reload_video()
+		{
+			blur_reload_video()
+			indexOldSnap = indexActive
+			selector.set_video( blur_snaps[ blur_activeSnap ])
+		}
 
 		emptyFilterLabel.y = selector.y - carrierHeight / 2 - TILE_BORDER
 		emptyFilterLabel.alpha = FILTERS_RGBA[3] * localFade
